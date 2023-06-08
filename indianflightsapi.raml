@@ -1,0 +1,67 @@
+#%RAML 1.0
+title: IndianFlightsAPI
+baseUri: http://{envHost}:{envPort}
+mediaType:
+  - application/json
+  - application/xml
+version: "1.0"
+protocols:
+  - HTTPS
+
+baseUriParameters:
+  envHost:
+    enum:
+      - dev-project.com
+      - test-project.com
+      - prod-project.com
+      - localhost
+  envPort: 
+    type: integer
+    enum:
+      - 8081
+      - 8082
+types:
+  IndianFlight: !include dataTypes/IndianFlight.raml
+
+securitySchemes: 
+  basic: !include basicSecurityScheme.raml
+  x-token: !include customSecurityScheme.raml
+
+  
+/flights:
+  get:
+    securedBy:
+      - x-token
+    queryParameters:
+      destination:
+        required: false
+        enum:
+          - MUM
+          - BLR
+          - DEL
+    responses:
+          200:
+            body:
+              application/json:
+                    type: IndianFlight[]
+                    example:
+                      strict: false
+                      value: !include examples/IndianFlightExample.raml    
+
+  post:
+    securedBy:
+      - basic
+    body:
+      application/json:
+        type: IndianFlight
+        example: 
+          strict: true
+          value: !include /examples/IndianFlightNoIDExample.raml
+    responses:
+      201:
+        body:
+          application/json: 
+            example:
+              value: !include /examples/IndianFlightNoIDExample.raml
+            
+        
